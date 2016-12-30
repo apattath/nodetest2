@@ -20,6 +20,16 @@ router.post('/adduser', function(req, res) {
 	});
 });
 
+router.put('/updateuser', function(req, res) {
+	var db = req.db;
+	var collection = db.get('userlist');
+	collection.update({username : req.body.username}, req.body, function(err, result) {
+		res.send(
+			(err === null) ? {msg: ''} : {msg: err}
+			);
+	});
+});
+
 router.delete('/deleteuser/:id', function(req, res) {
 	var db = req.db;
 	var collection = db.get('userlist');

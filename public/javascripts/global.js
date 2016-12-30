@@ -12,8 +12,14 @@ $(document).ready(function() {
 	// Add User button click
 	$('#btnAddUser').on('click', addUser);
 
+	// Add Update button click
+	$('#btnUpdateUser').on('click', updateUser);
+
 	// Delete user link click
 	$('#userList table tbody').on('click', 'td a.linkdeleteuser', deleteUser);
+
+	// Update user link click
+	$('#userList table tbody').on('click', 'td a.linkupdateuser', showUserInfoForUpdation);
 });
 
 // Functions
@@ -35,7 +41,7 @@ function populateTable() {
 			tableContent += '<td><a href="#" class="linkshowuser" rel="' + this.username + '">' + this.username + '</a></td>';
 			tableContent += '<td>' + this.email + '</td>';
 			tableContent += '<td><a href="#" class="linkdeleteuser" rel="' + this._id + '">delete</a></td>';
-			tableContent += '<td><a href="#" class="linkupdateuser" rel="' + this.username + '">update</a></td>'; 
+			tableContent += '<td><a href="#" class="linkupdateuser" rel="' + this._id + '">update</a></td>'; 
 			tableContent += '</tr>';
 		});
 
@@ -142,4 +148,78 @@ function deleteUser(event)
 		// If they said no to the confirmation dialog, do nothing
 		return false;
 	}
+};
+
+function updateUser(event)
+{
+	// Prevent link from firing
+	event.preventDefault();
+
+	// Basic validation - increase error count if any fields are blank
+	var errorCount = 0;
+	$('#addUser input').each(function(index, val) {
+		if ($(this).val() === '') {errorCount++;}
+	});
+
+	// Check and make sure errorCount's still at zero
+	if (errorCount === 0) {
+		// If it is, compile all user info into one oebject
+		var updateUser = {
+			'username': $('#addUser fieldset input#inputUserName').val(),
+            'email': $('#addUser fieldset input#inputUserEmail').val(),
+            'fullname': $('#addUser fieldset input#inputUserFullname').val(),
+            'age': $('#addUser fieldset input#inputUserAge').val(),
+            'location': $('#addUser fieldset input#inputUserLocation').val(),
+            'gender': $('#addUser fieldset input#inputUserGender').val()		
+        }
+
+        // use AJAX to post object to adduser service
+        $.ajax({
+        	type: 'PUT',
+        	data: updateUser,
+        	url: '/users/updateuser',
+        	dataType: 'JSON'
+        }).done(function(response) {
+        	// check for successful response
+        	if (response.msg === '') {
+        		// clear form inputs
+        		$('#addUser fieldset input').val('');
+
+        		// Update table
+        		populateTable();
+        	}
+        	else {
+        		// if something goes wrong, alert error emssage
+        		alert('Error: ' + response.msg);
+        	}
+        });
+	}
+	else {
+		// If error count is > 0, error out
+		alert('Please fill in all fields');
+		return false;
+	}
+}
+
+function showUserInfoForUpdation(event)
+{
+	// Prevent link from firing
+	event.preventDefault();
+
+	// Retrieve username from link rel attribute
+	var thisUserId = $(this).attr('rel');
+
+	// Get index of object based on id value
+	var arrayPosition = userListData.map(function(arrayItem) { return arrayItem._id; }).indexOf(thisUserId);
+
+	// Get our User object
+	var thisUserObject = userListData[arrayPosition];
+
+	// Populate Info Box
+	$('#addUser fieldset input#inputUserName').val(thisUserObject.username);
+    $('#addUser fieldset input#inputUserEmail').val(thisUserObject.email);
+    $('#addUser fieldset input#inputUserFullname').val(thisUserObject.fullname);
+    $('#addUser fieldset input#inputUserAge').val(thisUserObject.age);
+    $('#addUser fieldset input#inputUserLocation').val(thisUserObject.location);
+    $('#addUser fieldset input#inputUserGender').val(thisUserObject.gender);
 };

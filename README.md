@@ -5,3 +5,7 @@ For this project to run successfully,
 1. MongoDB service has to be running on 27017 port (start service by using mongod)
 2. app server has to be running (start server by running 'npm start' from project directory)
 3. To access the app from the browser, browse to http://localhost:3000
+
+For future references:
+1. client side stuff is under views\*, public\javascripts\*
+2. Server side stuff (.\app.js, routes\users.js, routes\index.js)
